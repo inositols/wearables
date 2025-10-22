@@ -8,6 +8,7 @@ import '../widgets/error_widget.dart';
 import '../widgets/empty_widget.dart';
 import '../widgets/range_selector.dart';
 import '../widgets/performance_toggle.dart';
+import 'mobile_dashboard_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -30,6 +31,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Check screen width to determine layout
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    
+    if (isMobile) {
+      return const MobileDashboardScreen();
+    }
+    
     return Consumer<DashboardProvider>(
       builder: (context, provider, child) {
         return Scaffold(

@@ -70,7 +70,10 @@ class DataService {
     final List<BiometricData> data = [];
     final DateTime startDate = DateTime.now().subtract(const Duration(days: 365));
     
-    for (int i = 0; i < pointCount; i++) {
+    // Limit point count to prevent memory issues
+    final safePointCount = pointCount > 10000 ? 10000 : pointCount;
+    
+    for (int i = 0; i < safePointCount; i++) {
       final date = startDate.add(Duration(days: i));
       final hrv = 50 + _random.nextDouble() * 30; // 50-80 range
       final rhr = 55 + _random.nextInt(20); // 55-75 range

@@ -67,20 +67,23 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: true,
-                  horizontalInterval: _calculateInterval(widget.minY, widget.maxY),
+                  horizontalInterval: _calculateInterval(
+                    widget.minY,
+                    widget.maxY,
+                  ),
                   verticalInterval: 1,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: widget.isDarkMode 
-                          ? Colors.grey[800]! 
+                      color: widget.isDarkMode
+                          ? Colors.grey[800]!
                           : Colors.grey[300]!,
                       strokeWidth: 1,
                     );
                   },
                   getDrawingVerticalLine: (value) {
                     return FlLine(
-                      color: widget.isDarkMode 
-                          ? Colors.grey[800]! 
+                      color: widget.isDarkMode
+                          ? Colors.grey[800]!
                           : Colors.grey[300]!,
                       strokeWidth: 1,
                     );
@@ -100,11 +103,15 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                       reservedSize: 30,
                       interval: _calculateTimeInterval(),
                       getTitlesWidget: (value, meta) {
-                        final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                        final date = DateTime.fromMillisecondsSinceEpoch(
+                          value.toInt(),
+                        );
                         return Text(
                           _formatDate(date),
                           style: TextStyle(
-                            color: widget.isDarkMode ? Colors.white70 : Colors.black54,
+                            color: widget.isDarkMode
+                                ? Colors.white70
+                                : Colors.black54,
                             fontSize: 10,
                           ),
                         );
@@ -120,7 +127,9 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                         return Text(
                           '${value.toInt()}${widget.unit}',
                           style: TextStyle(
-                            color: widget.isDarkMode ? Colors.white70 : Colors.black54,
+                            color: widget.isDarkMode
+                                ? Colors.white70
+                                : Colors.black54,
                             fontSize: 10,
                           ),
                         );
@@ -131,14 +140,16 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                 borderData: FlBorderData(
                   show: true,
                   border: Border.all(
-                    color: widget.isDarkMode ? Colors.grey[700]! : Colors.grey[400]!,
+                    color: widget.isDarkMode
+                        ? Colors.grey[700]!
+                        : Colors.grey[400]!,
                     width: 1,
                   ),
                 ),
-                minX: widget.data.isNotEmpty 
+                minX: widget.data.isNotEmpty
                     ? widget.data.first.date.millisecondsSinceEpoch.toDouble()
                     : 0,
-                maxX: widget.data.isNotEmpty 
+                maxX: widget.data.isNotEmpty
                     ? widget.data.last.date.millisecondsSinceEpoch.toDouble()
                     : 0,
                 minY: widget.minY,
@@ -146,7 +157,9 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                 lineBarsData: [
                   // Main data line
                   LineChartBarData(
-                    spots: widget.data.map((point) => point.toFlSpot()).toList(),
+                    spots: widget.data
+                        .map((point) => point.toFlSpot())
+                        .toList(),
                     isCurved: true,
                     color: widget.color,
                     barWidth: 2,
@@ -168,55 +181,84 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                     tooltipPadding: const EdgeInsets.all(8),
                     getTooltipItems: (touchedSpots) {
                       if (touchedSpots.isEmpty) return [];
-                      
+
                       final spot = touchedSpots.first;
-                      final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+                      final date = DateTime.fromMillisecondsSinceEpoch(
+                        spot.x.toInt(),
+                      );
                       final value = spot.y;
-                      
+
                       // Check for journal entry on this date
                       final journalEntry = widget.journalEntries.firstWhere(
-                        (entry) => entry.dateTime.year == date.year &&
-                                   entry.dateTime.month == date.month &&
-                                   entry.dateTime.day == date.day,
+                        (entry) =>
+                            entry.dateTime.year == date.year &&
+                            entry.dateTime.month == date.month &&
+                            entry.dateTime.day == date.day,
                         orElse: () => JournalEntry(date: '', mood: 0, note: ''),
                       );
-                      
-                      String tooltipText = '${widget.title}\n${_formatDate(date)}\n${value.toStringAsFixed(1)}${widget.unit}';
+
+                      String tooltipText =
+                          '${widget.title}\n${_formatDate(date)}\n${value.toStringAsFixed(1)}${widget.unit}';
                       if (journalEntry.mood > 0) {
-                        tooltipText += '\n\n${journalEntry.moodEmoji} ${journalEntry.moodDescription}\n${journalEntry.note}';
+                        tooltipText +=
+                            '\n\n${journalEntry.moodEmoji} ${journalEntry.moodDescription}\n${journalEntry.note}';
                       }
-                      
+
                       return [
                         LineTooltipItem(
                           tooltipText,
                           TextStyle(
-                            color: widget.isDarkMode ? Colors.white : Colors.black,
+                            color: widget.isDarkMode
+                                ? Colors.white
+                                : Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ];
                     },
                   ),
-                  touchCallback: (FlTouchEvent event, LineTouchResponse? touchResponse) {
-                    if (event is FlPanDownEvent || event is FlTapUpEvent) {
-                      if (touchResponse?.lineBarSpots?.isNotEmpty == true) {
-                        final spot = touchResponse!.lineBarSpots!.first;
-                        final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
-                        widget.onDateSelected(date);
-                        setState(() {
-                          _hoveredDate = date;
-                          _isHovering = true;
-                        });
-                      }
-                    } else if (event is FlPanEndEvent) {
-                      widget.onDateSelected(null);
-                      setState(() {
-                        _hoveredDate = null;
-                        _isHovering = false;
-                      });
-                    }
-                  },
+                  touchCallback:
+                      (FlTouchEvent event, LineTouchResponse? touchResponse) {
+                        if (event is FlPanDownEvent || event is FlTapUpEvent) {
+                          if (touchResponse?.lineBarSpots?.isNotEmpty == true) {
+                            final spot = touchResponse!.lineBarSpots!.first;
+                            final date = DateTime.fromMillisecondsSinceEpoch(
+                              spot.x.toInt(),
+                            );
+                            widget.onDateSelected(date);
+                            setState(() {
+                              _hoveredDate = date;
+                              _isHovering = true;
+                            });
+                          }
+                        } else if (event is FlPanEndEvent) {
+                          widget.onDateSelected(null);
+                          setState(() {
+                            _hoveredDate = null;
+                            _isHovering = false;
+                          });
+                        }
+                      },
                   handleBuiltInTouches: true, // Enable pan/zoom
+                  getTouchedSpotIndicator:
+                      (LineChartBarData barData, List<int> spotIndexes) {
+                        return spotIndexes.map((index) {
+                          return TouchedSpotIndicatorData(
+                            FlLine(color: Colors.blue, strokeWidth: 2),
+                            FlDotData(
+                              show: true,
+                              getDotPainter: (spot, percent, barData, index) {
+                                return FlDotCirclePainter(
+                                  radius: 4,
+                                  color: Colors.blue,
+                                  strokeWidth: 2,
+                                  strokeColor: Colors.white,
+                                );
+                              },
+                            ),
+                          );
+                        }).toList();
+                      },
                 ),
                 // Add annotation markers for journal entries
                 extraLinesData: ExtraLinesData(
@@ -225,19 +267,11 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                     ..._buildAnnotationLines(),
                     if (widget.selectedDate != null)
                       VerticalLine(
-                        x: widget.selectedDate!.millisecondsSinceEpoch.toDouble(),
+                        x: widget.selectedDate!.millisecondsSinceEpoch
+                            .toDouble(),
                         color: Colors.blue.withOpacity(0.8),
                         strokeWidth: 2,
                         dashArray: [3, 3],
-                        label: VerticalLineLabel(
-                          alignment: Alignment.topCenter,
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 10,
-                          ),
-                          label: '●',
-                        ),
                       ),
                   ],
                 ),
@@ -251,7 +285,7 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
 
   List<LineChartBarData> _buildBandLines() {
     if (widget.bands == null) return [];
-    
+
     final bands = widget.bands!;
     return [
       LineChartBarData(
@@ -267,52 +301,49 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
 
   List<VerticalLine> _buildAnnotationLines() {
     final lines = <VerticalLine>[];
-    
+
     // Add vertical lines for journal entries
     for (final entry in widget.journalEntries) {
-      if (widget.data.any((point) => 
-          point.date.year == entry.dateTime.year &&
-          point.date.month == entry.dateTime.month &&
-          point.date.day == entry.dateTime.day)) {
-        
+      if (widget.data.any(
+        (point) =>
+            point.date.year == entry.dateTime.year &&
+            point.date.month == entry.dateTime.month &&
+            point.date.day == entry.dateTime.day,
+      )) {
         lines.add(
           VerticalLine(
             x: entry.dateTime.millisecondsSinceEpoch.toDouble(),
             color: _getMoodColor(entry.mood),
             strokeWidth: 2,
-            dashArray: [5, 5],
-            label: VerticalLineLabel(
-              alignment: Alignment.topCenter,
-              style: TextStyle(
-                color: _getMoodColor(entry.mood),
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-              label: entry.moodEmoji,
-            ),
           ),
         );
       }
     }
-    
+
     return lines;
   }
 
   Color _getMoodColor(int mood) {
     switch (mood) {
-      case 1: return Colors.red;
-      case 2: return Colors.orange;
-      case 3: return Colors.yellow;
-      case 4: return Colors.lightGreen;
-      case 5: return Colors.green;
-      default: return Colors.grey;
+      case 1:
+        return Colors.red;
+      case 2:
+        return Colors.orange;
+      case 3:
+        return Colors.yellow;
+      case 4:
+        return Colors.lightGreen;
+      case 5:
+        return Colors.green;
+      default:
+        return Colors.grey;
     }
   }
 
   double _calculateInterval(double min, double max) {
     final range = max - min;
     if (range <= 0) return 1;
-    
+
     if (range <= 10) return 1;
     if (range <= 50) return 5;
     if (range <= 100) return 10;
@@ -331,7 +362,7 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date).inDays;
-    
+
     if (difference == 0) return 'Today';
     if (difference == 1) return 'Yesterday';
     if (difference < 7) return '${difference}d ago';
@@ -339,4 +370,3 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
     return '${date.month}/${date.day}';
   }
 }
-

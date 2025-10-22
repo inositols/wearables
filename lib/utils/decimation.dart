@@ -10,24 +10,31 @@ class DecimationUtils {
     List<ChartDataPoint> data,
     int targetSize,
   ) {
+    if (data.isEmpty) return data;
     if (data.length <= targetSize) return data;
     
-    final bucketSize = (data.length - 2) / (targetSize - 2);
+    // Ensure target size is reasonable
+    final safeTargetSize = min(targetSize, data.length);
+    final bucketSize = (data.length - 2) / (safeTargetSize - 2);
     final sampled = <ChartDataPoint>[data.first];
     
-    for (int i = 1; i < targetSize - 1; i++) {
+    for (int i = 1; i < safeTargetSize - 1; i++) {
       final bucketStart = (i * bucketSize).floor();
-      final bucketEnd = ((i + 1) * bucketSize).floor();
+      final bucketEnd = min(((i + 1) * bucketSize).floor(), data.length);
       
       // Calculate average point for next bucket
       double avgX = 0;
       double avgY = 0;
-      for (int j = bucketEnd; j < min(bucketEnd + bucketSize.floor(), data.length); j++) {
-        avgX += data[j].date.millisecondsSinceEpoch.toDouble();
-        avgY += data[j].value;
+      final nextBucketSize = min(bucketSize.floor(), data.length - bucketEnd);
+      
+      if (nextBucketSize > 0) {
+        for (int j = bucketEnd; j < min(bucketEnd + bucketSize.floor(), data.length); j++) {
+          avgX += data[j].date.millisecondsSinceEpoch.toDouble();
+          avgY += data[j].value;
+        }
+        avgX /= nextBucketSize;
+        avgY /= nextBucketSize;
       }
-      avgX /= min(bucketSize.floor(), data.length - bucketEnd);
-      avgY /= min(bucketSize.floor(), data.length - bucketEnd);
       
       // Find point in current bucket with maximum triangle area
       double maxArea = -1;
@@ -52,7 +59,9 @@ class DecimationUtils {
       sampled.add(selectedPoint);
     }
     
-    sampled.add(data.last);
+    if (data.length > 1) {
+      sampled.add(data.last);
+    }
     return sampled;
   }
 
