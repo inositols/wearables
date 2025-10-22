@@ -48,16 +48,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   });
                 },
               ),
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: () {
+                  provider.retry();
+                },
+              ),
               PopupMenuButton<String>(
                 onSelected: (value) {
                   if (value == 'performance') {
                     provider.toggleLargeDataset();
+                  } else if (value == 'error') {
+                    // Simulate error for demo
+                    provider.setState(DashboardState.error);
                   }
                 },
                 itemBuilder: (context) => [
                   const PopupMenuItem(
                     value: 'performance',
                     child: Text('Toggle Large Dataset'),
+                  ),
+                  const PopupMenuItem(
+                    value: 'error',
+                    child: Text('Simulate Error'),
                   ),
                 ],
               ),

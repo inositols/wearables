@@ -173,9 +173,22 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                       final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
                       final value = spot.y;
                       
+                      // Check for journal entry on this date
+                      final journalEntry = widget.journalEntries.firstWhere(
+                        (entry) => entry.dateTime.year == date.year &&
+                                   entry.dateTime.month == date.month &&
+                                   entry.dateTime.day == date.day,
+                        orElse: () => JournalEntry(date: '', mood: 0, note: ''),
+                      );
+                      
+                      String tooltipText = '${widget.title}\n${_formatDate(date)}\n${value.toStringAsFixed(1)}${widget.unit}';
+                      if (journalEntry.mood > 0) {
+                        tooltipText += '\n\n${journalEntry.moodEmoji} ${journalEntry.moodDescription}\n${journalEntry.note}';
+                      }
+                      
                       return [
                         LineTooltipItem(
-                          '${widget.title}\n${_formatDate(date)}\n${value.toStringAsFixed(1)}${widget.unit}',
+                          tooltipText,
                           TextStyle(
                             color: widget.isDarkMode ? Colors.white : Colors.black,
                             fontWeight: FontWeight.bold,
@@ -203,11 +216,30 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                       });
                     }
                   },
+                  handleBuiltInTouches: true, // Enable pan/zoom
                 ),
                 // Add annotation markers for journal entries
                 extraLinesData: ExtraLinesData(
                   extraLinesOnTop: true,
-                  horizontalLines: _buildAnnotationLines(),
+                  verticalLines: [
+                    ..._buildAnnotationLines(),
+                    if (widget.selectedDate != null)
+                      VerticalLine(
+                        x: widget.selectedDate!.millisecondsSinceEpoch.toDouble(),
+                        color: Colors.blue.withOpacity(0.8),
+                        strokeWidth: 2,
+                        dashArray: [3, 3],
+                        label: VerticalLineLabel(
+                          alignment: Alignment.topCenter,
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                          ),
+                          label: '●',
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -233,8 +265,8 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
     ];
   }
 
-  List<HorizontalLine> _buildAnnotationLines() {
-    final lines = <HorizontalLine>[];
+  List<VerticalLine> _buildAnnotationLines() {
+    final lines = <VerticalLine>[];
     
     // Add vertical lines for journal entries
     for (final entry in widget.journalEntries) {
@@ -244,11 +276,20 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
           point.date.day == entry.dateTime.day)) {
         
         lines.add(
-          HorizontalLine(
-            y: widget.minY + (widget.maxY - widget.minY) * 0.9,
+          VerticalLine(
+            x: entry.dateTime.millisecondsSinceEpoch.toDouble(),
             color: _getMoodColor(entry.mood),
             strokeWidth: 2,
             dashArray: [5, 5],
+            label: VerticalLineLabel(
+              alignment: Alignment.topCenter,
+              style: TextStyle(
+                color: _getMoodColor(entry.mood),
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+              label: entry.moodEmoji,
+            ),
           ),
         );
       }

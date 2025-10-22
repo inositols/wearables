@@ -165,6 +165,11 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Public method for demo purposes
+  void setState(DashboardState newState) {
+    _setState(newState);
+  }
+
   /// Get journal entry for a specific date
   JournalEntry? getJournalEntryForDate(DateTime date) {
     final dateString = date.toIso8601String().split('T')[0];
