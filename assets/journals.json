@@ -1,0 +1,17 @@
+[
+  { "date": "2024-10-05", "mood": 2, "note": "Bad sleep, feeling tired" },
+  { "date": "2024-10-12", "mood": 5, "note": "Great run this morning, feeling energized" },
+  { "date": "2024-10-18", "mood": 1, "note": "Stressful day at work, poor sleep quality" },
+  { "date": "2024-10-25", "mood": 4, "note": "Good workout, feeling strong" },
+  { "date": "2024-11-02", "mood": 3, "note": "Average day, nothing special" },
+  { "date": "2024-11-08", "mood": 2, "note": "Sick with cold, low energy" },
+  { "date": "2024-11-15", "mood": 5, "note": "Amazing weekend hiking trip" },
+  { "date": "2024-11-22", "mood": 4, "note": "Productive day, good focus" },
+  { "date": "2024-11-29", "mood": 3, "note": "Regular day, normal routine" },
+  { "date": "2024-12-06", "mood": 2, "note": "Holiday stress starting to build" },
+  { "date": "2024-12-13", "mood": 4, "note": "Good progress on personal projects" },
+  { "date": "2024-12-20", "mood": 5, "note": "Great family time, feeling grateful" },
+  { "date": "2024-12-27", "mood": 3, "note": "Post-holiday recovery, taking it easy" }
+]
+
+
