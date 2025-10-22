@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:device_preview/device_preview.dart';
 import 'services/dashboard_provider.dart';
 import 'screens/dashboard_screen.dart';
 
 void main() {
-  runApp(DevicePreview(builder: (context) => const BiometricsApp()));
+  runApp(const BiometricsApp());
 }
 
 class BiometricsApp extends StatelessWidget {

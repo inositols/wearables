@@ -50,9 +50,6 @@ dependencies:
   
   # Date and time utilities
   intl: null
-  
-  # Device preview for testing responsive design
-  device_preview: null
 
 dev_dependencies:
   flutter_test:
