@@ -21,6 +21,9 @@ jobs:
         channel: 'stable'
         cache: true
         
+    - name: Add web platform support
+      run: flutter create . --platforms web
+      
     - name: Get dependencies
       run: flutter pub get
       
