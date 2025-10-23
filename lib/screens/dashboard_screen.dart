@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide ErrorWidget;
 import 'package:provider/provider.dart';
 import '../services/dashboard_provider.dart';
 import '../models/data_range.dart';
+import '../models/chart_data_point.dart';
 import '../widgets/synchronized_chart.dart';
 import '../widgets/loading_skeleton.dart';
 import '../widgets/error_widget.dart';
@@ -64,9 +65,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 },
               ),
               PopupMenuButton<String>(
-                onSelected: (value) {
+                onSelected: (value) async {
                   if (value == 'performance') {
-                    provider.toggleLargeDataset();
+                    await provider.toggleLargeDataset();
                   } else if (value == 'error') {
                     // Simulate error for demo
                     provider.setState(DashboardState.error);
@@ -298,15 +299,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  double _calculateMinY(List<dynamic> data, double padding) {
+  double _calculateMinY(List<ChartDataPoint> data, double padding) {
     if (data.isEmpty) return 0;
-    final values = data.map((d) => d.value as double).toList();
+    final values = data.map((d) => d.value).toList();
     return values.reduce((a, b) => a < b ? a : b) - padding;
   }
 
-  double _calculateMaxY(List<dynamic> data, double padding) {
+  double _calculateMaxY(List<ChartDataPoint> data, double padding) {
     if (data.isEmpty) return 100;
-    final values = data.map((d) => d.value as double).toList();
+    final values = data.map((d) => d.value).toList();
     return values.reduce((a, b) => a > b ? a : b) + padding;
   }
 

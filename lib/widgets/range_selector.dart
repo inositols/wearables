@@ -15,48 +15,92 @@ class RangeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: isDarkMode ? 8 : 2,
-      color: isDarkMode ? Colors.grey[800] : Colors.white,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: isDarkMode 
+                ? Colors.black.withOpacity(0.3)
+                : Colors.grey.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Time Range',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.white : Colors.black87,
-              ),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.calendar_today,
+                    color: Colors.blue,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Time Range',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: isDarkMode ? Colors.white : Colors.grey[800],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             Row(
               children: DataRange.values.map((range) {
                 final isSelected = currentRange == range;
                 return Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ElevatedButton(
-                      onPressed: () => onRangeChanged(range),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isSelected
-                            ? (isDarkMode ? Colors.blue[700] : Colors.blue)
-                            : (isDarkMode ? Colors.grey[700] : Colors.grey[200]),
-                        foregroundColor: isSelected
-                            ? Colors.white
-                            : (isDarkMode ? Colors.white70 : Colors.black54),
-                        elevation: isSelected ? 4 : 0,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: isSelected
+                            ? Colors.blue
+                            : (isDarkMode ? Colors.grey[700] : Colors.grey[100]),
+                        boxShadow: isSelected ? [
+                          BoxShadow(
+                            color: Colors.blue.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ] : null,
                       ),
-                      child: Text(
-                        range.label,
-                        style: TextStyle(
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () => onRangeChanged(range),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Text(
+                              range.label,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                color: isSelected
+                                    ? Colors.white
+                                    : (isDarkMode ? Colors.white70 : Colors.grey[600]),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),

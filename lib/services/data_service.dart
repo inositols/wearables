@@ -65,16 +65,21 @@ class DataService {
 
   /// Generate large dataset for performance testing
   Future<List<BiometricData>> generateLargeDataset(int pointCount) async {
+    print('Generating large dataset with $pointCount points...'); // Debug
     await _simulateLatency();
     
     final List<BiometricData> data = [];
-    final DateTime startDate = DateTime.now().subtract(const Duration(days: 365));
+    // Generate data for the past 90 days to ensure it shows up in 7d/30d/90d ranges
+    final DateTime startDate = DateTime.now().subtract(const Duration(days: 90));
     
     // Limit point count to prevent memory issues
     final safePointCount = pointCount > 10000 ? 10000 : pointCount;
+    print('Safe point count: $safePointCount'); // Debug
     
     for (int i = 0; i < safePointCount; i++) {
-      final date = startDate.add(Duration(days: i));
+      // Distribute points across the past 90 days
+      final daysBack = (i / safePointCount) * 90;
+      final date = DateTime.now().subtract(Duration(days: daysBack.round()));
       final hrv = 50 + _random.nextDouble() * 30; // 50-80 range
       final rhr = 55 + _random.nextInt(20); // 55-75 range
       final steps = 5000 + _random.nextInt(8000); // 5k-13k range
@@ -89,6 +94,7 @@ class DataService {
       ));
     }
     
+    print('Large dataset generation complete: ${data.length} points'); // Debug
     return data;
   }
 }

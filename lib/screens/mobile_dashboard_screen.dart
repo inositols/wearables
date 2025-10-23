@@ -198,7 +198,7 @@ class _MobileDashboardScreenState extends State<MobileDashboardScreen> {
             ),
             Switch(
               value: provider.isLargeDataset,
-              onChanged: (_) => provider.toggleLargeDataset(),
+              onChanged: (_) async => await provider.toggleLargeDataset(),
               activeColor: Colors.blue,
             ),
           ],

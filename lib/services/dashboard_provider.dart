@@ -79,8 +79,11 @@ class DashboardProvider extends ChangeNotifier {
 
   /// Load large dataset for performance testing
   Future<void> _loadLargeDataset() async {
+    print('Loading large dataset...'); // Debug
     _biometricData = await _dataService.generateLargeDataset(10000);
+    print('Large dataset loaded: ${_biometricData.length} points'); // Debug
     _journalEntries = await _dataService.loadJournalEntries();
+    print('Journal entries loaded: ${_journalEntries.length} entries'); // Debug
   }
 
   /// Process and filter data based on current range
@@ -88,10 +91,14 @@ class DashboardProvider extends ChangeNotifier {
     final now = DateTime.now();
     final startDate = now.subtract(Duration(days: _currentRange.days));
     
+    print('Processing data: ${_biometricData.length} total points, range: ${_currentRange.days} days'); // Debug
+    
     // Filter biometric data by date range
     final filteredBiometrics = _biometricData
         .where((data) => data.dateTime.isAfter(startDate))
         .toList();
+    
+    print('Filtered biometrics: ${filteredBiometrics.length} points'); // Debug
     
     // Filter journal entries by date range
     final filteredJournals = _journalEntries
@@ -103,11 +110,15 @@ class DashboardProvider extends ChangeNotifier {
     _rhrData = DecimationUtils.biometricsToChartPoints(filteredBiometrics, 'rhr');
     _stepsData = DecimationUtils.biometricsToChartPoints(filteredBiometrics, 'steps');
     
+    print('Chart data points - HRV: ${_hrvData.length}, RHR: ${_rhrData.length}, Steps: ${_stepsData.length}'); // Debug
+    
     // Apply decimation if needed
     if (_hrvData.length > _decimationThreshold) {
+      print('Applying decimation to HRV data: ${_hrvData.length} -> $_decimationThreshold'); // Debug
       _hrvData = _useLTTB 
           ? DecimationUtils.lttbDecimation(_hrvData, _decimationThreshold)
           : DecimationUtils.bucketMeanDecimation(_hrvData, _decimationThreshold);
+      print('HRV data after decimation: ${_hrvData.length}'); // Debug
     }
     
     if (_rhrData.length > _decimationThreshold) {
@@ -136,9 +147,20 @@ class DashboardProvider extends ChangeNotifier {
   }
 
   /// Toggle large dataset mode
-  void toggleLargeDataset() {
+  Future<void> toggleLargeDataset() async {
     _isLargeDataset = !_isLargeDataset;
-    loadData();
+    print('Large dataset toggled: $_isLargeDataset'); // Debug
+    notifyListeners(); // Update UI immediately
+    
+    try {
+      await loadData();
+      print('Large dataset loaded successfully'); // Debug
+    } catch (error) {
+      print('Error loading large dataset: $error'); // Debug
+      _errorMessage = error.toString();
+      _setState(DashboardState.error);
+      notifyListeners();
+    }
   }
 
   /// Retry loading data

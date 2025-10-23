@@ -1,30 +1,24 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:wearables/main.dart';
+import 'package:wearables/services/dashboard_provider.dart';
+import 'package:wearables/models/data_range.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('Provider state management works correctly', (WidgetTester tester) async {
+    // Test the provider directly without triggering async operations
+    final provider = DashboardProvider();
+    
+    // Test initial state
+    expect(provider.state, equals(DashboardState.loading));
+    expect(provider.currentRange, equals(DataRange.sevenDays));
+    expect(provider.isLargeDataset, isFalse);
+    
+    // Test range changes
+    provider.changeRange(DataRange.thirtyDays);
+    expect(provider.currentRange, equals(DataRange.thirtyDays));
+    
+    // Test state changes
+    provider.setState(DashboardState.loaded);
+    expect(provider.state, equals(DashboardState.loaded));
   });
 }

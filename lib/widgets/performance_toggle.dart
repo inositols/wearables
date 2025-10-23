@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class PerformanceToggle extends StatelessWidget {
   final bool isLargeDataset;
-  final VoidCallback onToggle;
+  final Future<void> Function() onToggle;
   final bool isDarkMode;
 
   const PerformanceToggle({
@@ -14,18 +14,38 @@ class PerformanceToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: isDarkMode ? 8 : 2,
-      color: isDarkMode ? Colors.grey[800] : Colors.white,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: isDarkMode 
+                ? Colors.black.withOpacity(0.3)
+                : Colors.grey.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         child: Row(
           children: [
-            Icon(
-              Icons.speed,
-              color: isDarkMode ? Colors.white70 : Colors.black54,
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.speed,
+                color: Colors.orange,
+                size: 20,
+              ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,27 +53,44 @@ class PerformanceToggle extends StatelessWidget {
                   Text(
                     'Performance Mode',
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: isDarkMode ? Colors.white : Colors.black87,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: isDarkMode ? Colors.white : Colors.grey[800],
                     ),
                   ),
+                  const SizedBox(height: 4),
                   Text(
                     isLargeDataset 
-                        ? 'Large dataset (10k+ points) - Decimation enabled'
+                        ? 'Large dataset (10k+ points) - LTTB decimation enabled'
                         : 'Normal dataset - Full resolution',
                     style: TextStyle(
-                      fontSize: 12,
-                      color: isDarkMode ? Colors.white70 : Colors.black54,
+                      fontSize: 13,
+                      color: isDarkMode ? Colors.white70 : Colors.grey[600],
                     ),
                   ),
                 ],
               ),
             ),
-            Switch(
-              value: isLargeDataset,
-              onChanged: (_) => onToggle(),
-              activeColor: Colors.blue,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: isLargeDataset ? Colors.orange : Colors.grey[300],
+                boxShadow: isLargeDataset ? [
+                  BoxShadow(
+                    color: Colors.orange.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ] : null,
+              ),
+              child: Switch(
+                value: isLargeDataset,
+                onChanged: (_) async => await onToggle(),
+                activeColor: Colors.white,
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: Colors.grey[400],
+              ),
             ),
           ],
         ),

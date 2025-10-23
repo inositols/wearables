@@ -46,6 +46,24 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
 
   @override
   Widget build(BuildContext context) {
+    print(
+      'SynchronizedChart build: ${widget.data.length} data points',
+    ); // Debug
+    if (widget.data.isEmpty) {
+      return Container(
+        height: 200,
+        padding: const EdgeInsets.all(16),
+        child: Center(
+          child: Text(
+            'No data available',
+            style: TextStyle(
+              color: widget.isDarkMode ? Colors.white70 : Colors.black54,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Container(
       height: 200,
       padding: const EdgeInsets.all(16),
@@ -66,7 +84,7 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
               LineChartData(
                 gridData: FlGridData(
                   show: true,
-                  drawVerticalLine: true,
+                  drawVerticalLine: false,
                   horizontalInterval: _calculateInterval(
                     widget.minY,
                     widget.maxY,
@@ -75,17 +93,19 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
                       color: widget.isDarkMode
-                          ? Colors.grey[800]!
-                          : Colors.grey[300]!,
+                          ? Colors.grey[700]!.withOpacity(0.3)
+                          : Colors.grey[300]!.withOpacity(0.5),
                       strokeWidth: 1,
+                      dashArray: [5, 5],
                     );
                   },
                   getDrawingVerticalLine: (value) {
                     return FlLine(
                       color: widget.isDarkMode
-                          ? Colors.grey[800]!
-                          : Colors.grey[300]!,
+                          ? Colors.grey[700]!.withOpacity(0.3)
+                          : Colors.grey[300]!.withOpacity(0.5),
                       strokeWidth: 1,
+                      dashArray: [5, 5],
                     );
                   },
                 ),
@@ -162,12 +182,31 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                         .toList(),
                     isCurved: true,
                     color: widget.color,
-                    barWidth: 2,
+                    barWidth: 3,
                     isStrokeCapRound: true,
-                    dotData: FlDotData(show: false),
+                    dotData: FlDotData(
+                      show: false,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 4,
+                          color: widget.color,
+                          strokeWidth: 2,
+                          strokeColor: widget.isDarkMode
+                              ? Colors.white
+                              : Colors.white,
+                        );
+                      },
+                    ),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: widget.color.withOpacity(0.1),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          widget.color.withOpacity(0.3),
+                          widget.color.withOpacity(0.05),
+                        ],
+                      ),
                     ),
                   ),
                   // Bands if available
