@@ -51,7 +51,7 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
     ); // Debug
     if (widget.data.isEmpty) {
       return Container(
-        height: 200,
+        height: 300, // Match the increased height
         padding: const EdgeInsets.all(16),
         child: Center(
           child: Text(
@@ -65,7 +65,7 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
     }
 
     return Container(
-      height: 200,
+      height: 300, // Further increased height for 90d range readability
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,11 +182,21 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                         .toList(),
                     isCurved: true,
                     color: widget.color,
-                    barWidth: 3,
+                    barWidth: 4,
                     isStrokeCapRound: true,
                     dotData: FlDotData(
-                      show: false,
+                      show: true,
                       getDotPainter: (spot, percent, barData, index) {
+                        // Create heart-shaped dots for HRV chart
+                        if (widget.title.toLowerCase().contains('hrv')) {
+                          return FlDotCirclePainter(
+                            radius: 6,
+                            color: Colors.red,
+                            strokeWidth: 2,
+                            strokeColor: Colors.white,
+                          );
+                        }
+                        // Regular dots for other charts
                         return FlDotCirclePainter(
                           radius: 4,
                           color: widget.color,
@@ -203,8 +213,8 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          widget.color.withOpacity(0.3),
-                          widget.color.withOpacity(0.05),
+                          widget.color.withOpacity(0.4),
+                          widget.color.withOpacity(0.1),
                         ],
                       ),
                     ),
@@ -221,30 +231,30 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                     getTooltipItems: (touchedSpots) {
                       if (touchedSpots.isEmpty) return [];
 
-                      final spot = touchedSpots.first;
-                      final date = DateTime.fromMillisecondsSinceEpoch(
-                        spot.x.toInt(),
-                      );
-                      final value = spot.y;
+                      // Return tooltip items for each touched spot
+                      return touchedSpots.map((spot) {
+                        final date = DateTime.fromMillisecondsSinceEpoch(
+                          spot.x.toInt(),
+                        );
+                        final value = spot.y;
 
-                      // Check for journal entry on this date
-                      final journalEntry = widget.journalEntries.firstWhere(
-                        (entry) =>
-                            entry.dateTime.year == date.year &&
-                            entry.dateTime.month == date.month &&
-                            entry.dateTime.day == date.day,
-                        orElse: () => JournalEntry(date: '', mood: 0, note: ''),
-                      );
+                        // Check for journal entry on this date
+                        final journalEntry = widget.journalEntries.firstWhere(
+                          (entry) =>
+                              entry.dateTime.year == date.year &&
+                              entry.dateTime.month == date.month &&
+                              entry.dateTime.day == date.day,
+                          orElse: () => JournalEntry(date: '', mood: 0, note: ''),
+                        );
 
-                      String tooltipText =
-                          '${widget.title}\n${_formatDate(date)}\n${value.toStringAsFixed(1)}${widget.unit}';
-                      if (journalEntry.mood > 0) {
-                        tooltipText +=
-                            '\n\n${journalEntry.moodEmoji} ${journalEntry.moodDescription}\n${journalEntry.note}';
-                      }
+                        String tooltipText =
+                            '${widget.title}\n${_formatDate(date)}\n${value.toStringAsFixed(1)}${widget.unit}';
+                        if (journalEntry.mood > 0) {
+                          tooltipText +=
+                              '\n\n${journalEntry.moodEmoji} ${journalEntry.moodDescription}\n${journalEntry.note}';
+                        }
 
-                      return [
-                        LineTooltipItem(
+                        return LineTooltipItem(
                           tooltipText,
                           TextStyle(
                             color: widget.isDarkMode
@@ -252,8 +262,8 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                                 : Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
-                        ),
-                      ];
+                        );
+                      }).toList();
                     },
                   ),
                   touchCallback:
@@ -393,9 +403,24 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
   }
 
   double _calculateTimeInterval() {
-    if (widget.data.length <= 7) return 1;
-    if (widget.data.length <= 30) return 7;
-    return 30;
+    if (widget.data.isEmpty) return 1;
+    
+    // Calculate interval based on data range and density
+    final dataLength = widget.data.length;
+    final minX = widget.data.first.date.millisecondsSinceEpoch.toDouble();
+    final maxX = widget.data.last.date.millisecondsSinceEpoch.toDouble();
+    final totalDays = (maxX - minX) / (1000 * 60 * 60 * 24);
+    
+    // More aggressive intervals for better spacing
+    if (totalDays <= 7) {
+      return 1; // Daily intervals for 7 days
+    } else if (totalDays <= 30) {
+      return 5; // Every 5 days for 30 days
+    } else if (totalDays <= 90) {
+      return 14; // Every 2 weeks for 90 days
+    } else {
+      return 21; // Every 3 weeks for longer ranges
+    }
   }
 
   String _formatDate(DateTime date) {
@@ -406,6 +431,13 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
     if (difference == 1) return 'Yesterday';
     if (difference < 7) return '${difference}d ago';
     if (difference < 30) return '${(difference / 7).floor()}w ago';
-    return '${date.month}/${date.day}';
+    
+    // For longer ranges, use more compact formatting
+    if (difference < 90) {
+      return '${date.month}/${date.day}';
+    } else {
+      // Very compact format for 90d range
+      return '${date.month}/${date.day.toString().padLeft(2, '0')}';
+    }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:flutter/material.dart';
 
 part 'journal_entry.g.dart';
 
@@ -52,6 +53,23 @@ class JournalEntry {
         return 'Excellent';
       default:
         return 'Unknown';
+    }
+  }
+
+  Color get moodColor {
+    switch (mood) {
+      case 1:
+        return Colors.red; // Very Poor - Red
+      case 2:
+        return Colors.orange; // Poor - Orange
+      case 3:
+        return Colors.yellow; // Neutral - Yellow
+      case 4:
+        return Colors.lightGreen; // Good - Light Green
+      case 5:
+        return Colors.green; // Excellent - Green
+      default:
+        return Colors.grey; // Unknown - Grey
     }
   }
 

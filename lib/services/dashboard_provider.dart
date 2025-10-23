@@ -33,6 +33,18 @@ class DashboardProvider extends ChangeNotifier {
   int _decimationThreshold = 1000;
   bool _useLTTB = true;
 
+  /// Get adaptive decimation threshold based on date range
+  int _getDecimationThreshold() {
+    switch (_currentRange) {
+      case DataRange.sevenDays:
+        return 30; // Keep more detail for 7 days
+      case DataRange.thirtyDays:
+        return 60; // Moderate decimation for 30 days
+      case DataRange.ninetyDays:
+        return 80; // Much more aggressive decimation for 90 days
+    }
+  }
+
   // Getters
   DashboardState get state => _state;
   List<BiometricData> get biometricData => _biometricData;
@@ -112,25 +124,33 @@ class DashboardProvider extends ChangeNotifier {
     
     print('Chart data points - HRV: ${_hrvData.length}, RHR: ${_rhrData.length}, Steps: ${_stepsData.length}'); // Debug
     
+    // Get adaptive decimation threshold based on date range
+    final adaptiveThreshold = _getDecimationThreshold();
+    print('Using adaptive decimation threshold: $adaptiveThreshold for ${_currentRange.days} days'); // Debug
+    
     // Apply decimation if needed
-    if (_hrvData.length > _decimationThreshold) {
-      print('Applying decimation to HRV data: ${_hrvData.length} -> $_decimationThreshold'); // Debug
+    if (_hrvData.length > adaptiveThreshold) {
+      print('Applying decimation to HRV data: ${_hrvData.length} -> $adaptiveThreshold'); // Debug
       _hrvData = _useLTTB 
-          ? DecimationUtils.lttbDecimation(_hrvData, _decimationThreshold)
-          : DecimationUtils.bucketMeanDecimation(_hrvData, _decimationThreshold);
+          ? DecimationUtils.lttbDecimation(_hrvData, adaptiveThreshold)
+          : DecimationUtils.bucketMeanDecimation(_hrvData, adaptiveThreshold);
       print('HRV data after decimation: ${_hrvData.length}'); // Debug
     }
     
-    if (_rhrData.length > _decimationThreshold) {
+    if (_rhrData.length > adaptiveThreshold) {
+      print('Applying decimation to RHR data: ${_rhrData.length} -> $adaptiveThreshold'); // Debug
       _rhrData = _useLTTB 
-          ? DecimationUtils.lttbDecimation(_rhrData, _decimationThreshold)
-          : DecimationUtils.bucketMeanDecimation(_rhrData, _decimationThreshold);
+          ? DecimationUtils.lttbDecimation(_rhrData, adaptiveThreshold)
+          : DecimationUtils.bucketMeanDecimation(_rhrData, adaptiveThreshold);
+      print('RHR data after decimation: ${_rhrData.length}'); // Debug
     }
     
-    if (_stepsData.length > _decimationThreshold) {
+    if (_stepsData.length > adaptiveThreshold) {
+      print('Applying decimation to Steps data: ${_stepsData.length} -> $adaptiveThreshold'); // Debug
       _stepsData = _useLTTB 
-          ? DecimationUtils.lttbDecimation(_stepsData, _decimationThreshold)
-          : DecimationUtils.bucketMeanDecimation(_stepsData, _decimationThreshold);
+          ? DecimationUtils.lttbDecimation(_stepsData, adaptiveThreshold)
+          : DecimationUtils.bucketMeanDecimation(_stepsData, adaptiveThreshold);
+      print('Steps data after decimation: ${_stepsData.length}'); // Debug
     }
     
     // Calculate HRV bands (7-day rolling mean ±1σ)

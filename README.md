@@ -119,9 +119,6 @@ flutter build web --release
 
 2. Deploy to hosting service:
 - GitHub Pages
-- Netlify
-- Vercel
-- Firebase Hosting
 
 ### Build Configuration
 
