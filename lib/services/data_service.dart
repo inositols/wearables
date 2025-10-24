@@ -12,7 +12,7 @@ class DataService {
   // Simulate network latency and failures
   static const int _minLatencyMs = 700;
   static const int _maxLatencyMs = 1200;
-  static const double _failureRate = 0.1; // 10% failure rate
+  static const double _failureRate = 0.1; 
 
   final Random _random = Random();
 

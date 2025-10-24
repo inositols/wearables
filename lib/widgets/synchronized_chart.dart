@@ -244,7 +244,8 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
                               entry.dateTime.year == date.year &&
                               entry.dateTime.month == date.month &&
                               entry.dateTime.day == date.day,
-                          orElse: () => JournalEntry(date: '', mood: 0, note: ''),
+                          orElse: () =>
+                              JournalEntry(date: '', mood: 0, note: ''),
                         );
 
                         String tooltipText =
@@ -404,13 +405,13 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
 
   double _calculateTimeInterval() {
     if (widget.data.isEmpty) return 1;
-    
+
     // Calculate interval based on data range and density
     final dataLength = widget.data.length;
     final minX = widget.data.first.date.millisecondsSinceEpoch.toDouble();
     final maxX = widget.data.last.date.millisecondsSinceEpoch.toDouble();
     final totalDays = (maxX - minX) / (1000 * 60 * 60 * 24);
-    
+
     // More aggressive intervals for better spacing
     if (totalDays <= 7) {
       return 1; // Daily intervals for 7 days
@@ -431,12 +432,10 @@ class _SynchronizedChartState extends State<SynchronizedChart> {
     if (difference == 1) return 'Yesterday';
     if (difference < 7) return '${difference}d ago';
     if (difference < 30) return '${(difference / 7).floor()}w ago';
-    
-    // For longer ranges, use more compact formatting
+
     if (difference < 90) {
       return '${date.month}/${date.day}';
     } else {
-      // Very compact format for 90d range
       return '${date.month}/${date.day.toString().padLeft(2, '0')}';
     }
   }

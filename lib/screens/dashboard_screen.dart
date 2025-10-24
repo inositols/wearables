@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide ErrorWidget;
 import 'package:provider/provider.dart';
 import '../services/dashboard_provider.dart';
-import '../models/data_range.dart';
 import '../models/chart_data_point.dart';
 import '../widgets/synchronized_chart.dart';
 import '../widgets/loading_skeleton.dart';
@@ -32,14 +31,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Check screen width to determine layout
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
-    
+
     if (isMobile) {
       return const MobileDashboardScreen();
     }
-    
+
     return Consumer<DashboardProvider>(
       builder: (context, provider, child) {
         return Scaffold(
@@ -69,7 +67,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (value == 'performance') {
                     await provider.toggleLargeDataset();
                   } else if (value == 'error') {
-                    // Simulate error for demo
                     provider.setState(DashboardState.error);
                   }
                 },
@@ -315,4 +312,3 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return '${date.month}/${date.day}/${date.year}';
   }
 }
-
